@@ -134,6 +134,44 @@ async def audit_image(request: AuditRequest):
                 detail=content if 'content' in dir() else str(result)
             )
 
+class AskRequest(BaseModel):
+    message: str
+
+class AskResponse(BaseModel):
+    reply: str
+
+@app.post("/ask", response_model=AskResponse)
+async def ask_laog(request: AskRequest):
+    """和老G文字对话"""
+    if not GEMINI_API_KEY:
+        raise HTTPException(500, "GEMINI_API_KEY not configured")
+    
+    payload = {
+        "contents": [{
+            "parts": [{"text": request.message}]
+        }],
+        "generationConfig": {
+            "temperature": 0.7,
+            "maxOutputTokens": 2000
+        }
+    }
+    
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        response = await client.post(
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+            params={"key": GEMINI_API_KEY},
+            headers={"Content-Type": "application/json"},
+            json=payload
+        )
+        
+        if response.status_code != 200:
+            raise HTTPException(502, f"Gemini API error: {response.text}")
+        
+        result = response.json()
+        content = result["candidates"][0]["content"]["parts"][0]["text"]
+        
+        return AskResponse(reply=content)
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 10000)))
