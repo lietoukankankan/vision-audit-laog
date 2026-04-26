@@ -13,7 +13,7 @@ import httpx
 
 # 老G的Gemini API
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key={GEMINI_API_KEY}"
 
 # 老G的审核Prompt
 AUDIT_PROMPT = """你是词根视频的视觉审核专家（老G角色），我有大量历史沟通记录，了解课程节奏。
@@ -102,7 +102,7 @@ async def audit_image(request: AuditRequest):
     
     async with httpx.AsyncClient(timeout=60.0) as client:
         response = await client.post(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent",
             params={"key": GEMINI_API_KEY},
             headers={"Content-Type": "application/json"},
             json=payload
@@ -158,7 +158,7 @@ async def ask_laog(request: AskRequest):
     
     async with httpx.AsyncClient(timeout=60.0) as client:
         response = await client.post(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent",
             params={"key": GEMINI_API_KEY},
             headers={"Content-Type": "application/json"},
             json=payload
